@@ -3,18 +3,20 @@ import './MainPage.scss'
 import TestCase from '../component/Testcase/TestCase'
 import { useSelector } from 'react-redux'
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
+import { FaFilter } from "react-icons/fa";
 
 function MainPage() {
 
     const fullList = useSelector(state => state.appConfigReducer.lists);
-   
+
     const totalCategory = [...new Set(fullList?.map(list => list.type))];
-   
+
 
     const [list, setList] = useState(fullList);
     const [filteredList, setFilteredList] = useState(fullList);
     const [selectedCat, setCategory] = useState([]);
     const [page, setPage] = useState(1);
+    const [open, setOpen] = useState(false);
 
 
     useEffect(() => {
@@ -50,7 +52,7 @@ function MainPage() {
             ])
         }
         setPage(1);
-       
+
     }
 
 
@@ -66,64 +68,92 @@ function MainPage() {
 
 
     return (
-        <div className="mainpage">
-            <div className="inner_main_page">
-                <div className="left_side">
-                    <div className="section_name">
-                        <h3>Type of TestCases</h3>
-                        <span className='hr_line'></span>
-                    </div>
-                    <div className="filter">
-                        {totalCategory.map((type, index) => (
+        <>
+            <div className="mainpage">
+                <div className="inner_main_page">
+                    <div className="left_side">
+                        <div className="section_name">
+                            <h3>Type of TestCases</h3>
+                            <span className='hr_line'></span>
+                        </div>
+                        <div className="filter">
+                            {totalCategory.map((type, index) => (
 
-                            <label key={index}>
-                                <input
-                                    type="checkbox"
-                                    value={type}
-                                    checked={selectedCat.includes(type)}
-                                    onChange={handleCatCheckBox}
-                                />
-                                {type}
-                            </label>
+                                <label key={index}>
+                                    <input
+                                        type="checkbox"
+                                        value={type}
+                                        checked={selectedCat.includes(type)}
+                                        onChange={handleCatCheckBox}
+                                    />
+                                    {type}
+                                </label>
 
 
-                        ))}
-                    </div>
+                            ))}
+                        </div>
 
-                </div>
-
-                <div className="right_side">
-                    <div className="list_name"><h1>List of TestCases</h1> <span className='hr_line'></span></div>
-
-                    <div className="list_of_cases">
-                        {
-                            filteredList?.slice(page * 10 - 10, page * 10).map((data, index) => <TestCase key={index} index={index} data={data} />)
-                        }
                     </div>
 
-                    {filteredList.length > 0 && <div className='pagination'>
-                        <span onClick={() => handleSelectedPage(page - 1)}><FaAngleLeft/></span>
-                        {[...Array(Math.ceil(filteredList.length / 10))].map((_, i) => {
-                            const startChunk = Math.floor((page - 1) / 10) * 10 + 1;
-                            const endChunk = Math.min(startChunk + 9, Math.ceil(filteredList.length / 10));
-                            if (i + 1 >= startChunk && i + 1 <= endChunk) {
-                                return (
-                                    <span
-                                        className={page === i + 1 ? "black" : "white"}
-                                        onClick={() => handleSelectedPage(i + 1)}
-                                        key={i}
-                                    >
-                                        {i + 1}
-                                    </span>
-                                );
+                    <div className="right_side">
+                        <div className="list_name" onClick={()=>setOpen(!open)}><h1>List of TestCases</h1> <span className='hr_line'></span></div>
+
+                        <div className="list_of_cases">
+                            {
+                                filteredList?.slice(page * 10 - 10, page * 10).map((data, index) => <TestCase key={index} index={index} data={data} />)
                             }
-                            return null;
-                        })}
-                        <span onClick={() => handleSelectedPage(page + 1)}><FaAngleRight/></span>
-                    </div>}
+                        </div>
+
+                        {filteredList.length > 0 && <div className='pagination'>
+                            <span onClick={() => handleSelectedPage(page - 1)}><FaAngleLeft /></span>
+                            {[...Array(Math.ceil(filteredList.length / 10))].map((_, i) => {
+                                const startChunk = Math.floor((page - 1) / 10) * 10 + 1;
+                                const endChunk = Math.min(startChunk + 9, Math.ceil(filteredList.length / 10));
+                                if (i + 1 >= startChunk && i + 1 <= endChunk) {
+                                    return (
+                                        <span
+                                            className={page === i + 1 ? "black" : "white"}
+                                            onClick={() => handleSelectedPage(i + 1)}
+                                            key={i}
+                                        >
+                                            {i + 1}
+                                        </span>
+                                    );
+                                }
+                                return null;
+                            })}
+                            <span onClick={() => handleSelectedPage(page + 1)}><FaAngleRight /></span>
+                        </div>}
+                    </div>
+
                 </div>
+
             </div>
-        </div>
+            {open && <div className={open?"left_side_open":"left_side_Close"}>
+                <div className="section_name">
+                    <h3>Type of TestCases</h3>
+                    <span className='hr_line'></span>
+                </div>
+                <div className="filter">
+                    {totalCategory.map((type, index) => (
+
+                        <label key={index}>
+                            <input
+                                type="checkbox"
+                                value={type}
+                                checked={selectedCat.includes(type)}
+                                onChange={handleCatCheckBox}
+                            />
+                            {type}
+                        </label>
+
+
+                    ))}
+                </div>
+
+            </div>}
+            <span onClick={()=>setOpen(!open)} className='filter_icon'><FaFilter/></span>
+        </>
     )
 }
 
